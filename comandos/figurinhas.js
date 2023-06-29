@@ -18,8 +18,8 @@ module.exports = figurinhas = async(client,message) => {
                 if(isMedia || quotedMsg){
                     var argSticker = args.length > 1 ? args[1].toLowerCase() : ""
                     var stickerMetadata = {
-                        author: process.env.NOME_AUTOR_FIGURINHAS.trim(), 
-                        pack: `${process.env.NOME_AUTOR_FIGURINHAS.trim()} Stickers`, 
+                        author: `Morpheu's BOT`, 
+                        pack: `M'BOT Stickers`, 
                         keepScale: true, 
                         circle: false, 
                         discord: "701084178112053288"
