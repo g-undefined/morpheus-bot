@@ -8,6 +8,7 @@ const {
 } = require("../lib/util");
 const path = require("path");
 const api = require("../lib/api");
+const axios = require('axios');
 
 module.exports = diversao = async (client, message) => {
   try {
@@ -28,6 +29,7 @@ module.exports = diversao = async (client, message) => {
     command = removerNegritoComando(command);
     const args = commands.split(" ");
     const ownerNumber = process.env.NUMERO_DONO.trim(); // Número do administrador do bot
+    const icaroNumber = process.env.NUMERO_ICARO.trim(); // Número do Icaro (zuar no pirokometro)
     const botNumber = await client.getHostNumber();
     const groupId = isGroupMsg ? chat.groupMetadata.id : "";
     const groupAdmins = isGroupMsg ? await client.getGroupAdmins(groupId) : "";
@@ -90,7 +92,7 @@ module.exports = diversao = async (client, message) => {
         else
           (idResposta = quotedMsgObj.id),
             (alvo = quotedMsgObj.author.replace(/@c.us/g, ""));
-        if (ownerNumber == alvo) indexAleatorio = 0;
+        // if (ownerNumber == alvo) indexAleatorio = 0;
         var respostaTexto = criarTexto(
           msgs_texto.diversao.viadometro.resposta,
           respostas[indexAleatorio]
@@ -118,13 +120,104 @@ module.exports = diversao = async (client, message) => {
         else
           (idResposta = quotedMsgObj.id),
             (alvo = quotedMsgObj.author.replace(/@c.us/g, ""));
-        if (ownerNumber == alvo) indexAleatorio = 0;
+        // if (ownerNumber == alvo) indexAleatorio = 0;
         var respostaTexto = criarTexto(
           msgs_texto.diversao.bafometro.resposta,
           respostas[indexAleatorio]
         );
         await client.reply(chatId, respostaTexto, idResposta);
         break;
+
+      case "!macacometro":
+        if (!isGroupMsg)
+          return await client.reply(chatId, msgs_texto.permissao.grupo, id);
+        if (!quotedMsg && mentionedJidList.length == 0)
+          return await client.reply(chatId, erroComandoMsg(command), id);
+        if (mentionedJidList.length > 1)
+          return await client.reply(
+            chatId,
+            msgs_texto.diversao.macacometro.apenas_um,
+            id
+          );
+        var respostas = msgs_texto.diversao.macacometro.respostas;
+        var indexAleatorio = Math.floor(Math.random() * respostas.length),
+          idResposta = null,
+          alvo = null;
+        if (mentionedJidList.length == 1)
+          (idResposta = id), (alvo = mentionedJidList[0].replace(/@c.us/g, ""));
+        else
+          (idResposta = quotedMsgObj.id),
+            (alvo = quotedMsgObj.author.replace(/@c.us/g, ""));
+        // if (ownerNumber == alvo) indexAleatorio = 0;
+        var respostaTexto = criarTexto(
+          msgs_texto.diversao.macacometro.resposta,
+          respostas[indexAleatorio]
+        );
+        await client.reply(chatId, respostaTexto, idResposta);
+        break;
+
+        case "!pirokometro":
+          if (!isGroupMsg)
+            return await client.reply(chatId, msgs_texto.permissao.grupo, id);
+          if (!quotedMsg && mentionedJidList.length == 0)
+            return await client.reply(chatId, erroComandoMsg(command), id);
+          if (mentionedJidList.length > 1)
+            return await client.reply(
+              chatId,
+              msgs_texto.diversao.pirokometro.apenas_um,
+              id
+            );
+          var respostas = msgs_texto.diversao.pirokometro.respostas;
+          var indexAleatorio = Math.floor(Math.random() * respostas.length),
+            idResposta = null,
+            alvo = null;
+          if (mentionedJidList.length == 1)
+            (idResposta = id), (alvo = mentionedJidList[0].replace(/@c.us/g, ""));
+          else
+            (idResposta = quotedMsgObj.id),
+              (alvo = quotedMsgObj.author.replace(/@c.us/g, ""));
+          // if (ownerNumber == alvo) indexAleatorio = 0;
+          var respostaTexto = criarTexto(
+            msgs_texto.diversao.pirokometro.resposta,
+            respostas[indexAleatorio]
+          );
+          await client.reply(chatId, respostaTexto, idResposta);
+          break;
+
+        case "!piada":
+          if (!isGroupMsg)
+            return await client.reply(chatId, msgs_texto.permissao.grupo, id);
+  
+          var respostasPiadas = msgs_texto.diversao.piadas.respostas;
+          var indexAleatorioPiada = Math.floor(Math.random() * respostasPiadas.length);
+            
+          var respostaPiada = respostasPiadas[indexAleatorioPiada];
+          await client.reply(chatId, respostaPiada, id);
+          break;
+
+        case "!gato":
+          if (!isGroupMsg)
+            return await client.reply(chatId, msgs_texto.permissao.grupo, id);
+            
+          try {
+            const apiKey = "live_PRcURjqogegpouQz7rgSnyV753TSUrTZbhdUMvsU7f1wLrCjmpULPcNGv0WkVzqY";
+            const response = await axios.get(`https://api.thecatapi.com/v1/images/search`, {
+              headers: {
+                'x-api-key': apiKey
+              }
+            });
+          
+            if (response.data && response.data.length > 0) {
+              const imageUrl = response.data[0].url;
+              await client.sendImage(chatId, imageUrl, 'gato.jpg', 'Aqui está uma imagem de um gato aleatório:');
+            } else {
+              await client.reply(chatId, 'Desculpe, não consegui encontrar uma imagem de gato neste momento.', id);
+            }
+          } catch (error) {
+            console.error('Erro ao obter imagem de gato:', error);
+            await client.reply(chatId, 'Ocorreu um erro ao buscar a imagem de gato. Por favor, tente novamente mais tarde.', id);
+          }
+          break;
 
       case "!chance":
         if (args.length === 1)

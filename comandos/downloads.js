@@ -127,34 +127,32 @@ module.exports = downloads = async (client, message) => {
                 }
                 break
 
-            case "!img":
-                if (quotedMsg || type != "chat") return await client.reply(chatId, erroComandoMsg(command), id);
-                var usuarioQuantidadeFotos = args[1],
-                    qtdFotos = 1,
-                    textoPesquisa = "";
-                if (!isNaN(usuarioQuantidadeFotos)) {
-                    if (usuarioQuantidadeFotos > 0 && usuarioQuantidadeFotos <= 5) {
-                        qtdFotos = usuarioQuantidadeFotos;
-                        textoPesquisa = args.slice(2).join(" ").trim();
+                case '!img':
+                    if(quotedMsg || type != "chat") return await client.reply(chatId, erroComandoMsg(command) , id)
+                    var usuarioQuantidadeFotos = args[1], qtdFotos = 1, textoPesquisa = ""
+                    if(!isNaN(usuarioQuantidadeFotos)){
+                        if(usuarioQuantidadeFotos > 0 && usuarioQuantidadeFotos <= 5) {
+                            qtdFotos = usuarioQuantidadeFotos
+                            textoPesquisa = args.slice(2).join(" ").trim()
+                        } else {
+                            return await client.reply(chatId, msgs_texto.downloads.img.qtd_imagem , id)
+                        }
                     } else {
-                        return await client.reply(chatId, msgs_texto.downloads.img.qtd_imagem, id);
+                        textoPesquisa = body.slice(5).trim()
                     }
-                } else {
-                    textoPesquisa = body.slice(5).trim();
-                }
-                if (!textoPesquisa) return await client.reply(chatId, erroComandoMsg(command), id);
-                if (textoPesquisa.length > 120) return await client.reply(chatId, msgs_texto.downloads.img.tema_longo, id);
-                try {
-                    var resultadosImagens = await api.obterImagens(textoPesquisa, qtdFotos);
-                    for (let imagem of resultadosImagens) {
-                        client.sendFileFromUrl(chatId, imagem, "foto.jpg", "", qtdFotos == 1 ? id : "").catch(async () => {
-                            await client.sendText(chatId, msgs_texto.downloads.img.erro_imagem);
-                        });
+                    if (!textoPesquisa) return await client.reply(chatId, erroComandoMsg(command), id)
+                    if (textoPesquisa.length > 120) return await client.reply(chatId, msgs_texto.downloads.img.tema_longo , id)
+                    try{
+                        var resultadosImagens = await api.obterImagens(textoPesquisa, qtdFotos)
+                        for(let imagem of resultadosImagens){
+                            client.sendFileFromUrl(chatId, imagem , "foto.jpg" , "", (qtdFotos == 1) ? id : "").catch(async ()=>{
+                                await client.sendText(chatId, msgs_texto.downloads.img.erro_imagem)
+                            })
+                        }
+                    } catch(err){
+                        await client.reply(chatId, err.message, id)
                     }
-                } catch (err) {
-                    await client.reply(chatId, err.message, id);
-                }
-                break;
+                    break
         }
     } catch (err) {
         throw err

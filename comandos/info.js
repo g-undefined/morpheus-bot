@@ -35,6 +35,16 @@ module.exports = info = async(client, message, abrirMenu) => {
                     await client.reply(chatId, resposta, id)
                 }
                 break
+
+            case "!changelog":
+                try {
+                    const changelogMessage = msgs_texto.info.changelog.atualizacoes;
+                    await client.reply(chatId, changelogMessage, id);
+                } catch (error) {
+                    console.error('Erro ao obter changelog:', error);
+                    await client.reply(chatId, 'Ocorreu um erro ao buscar as atualizações. Por favor, tente novamente mais tarde.', id);
+                }
+                break;
             
             case "!reportar":
                 if(args.length == 1) return client.reply(chatId, erroComandoMsg(command) ,id)

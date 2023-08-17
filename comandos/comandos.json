@@ -21,7 +21,8 @@
         "!ajuda","!menu",
         "!reportar",
         "!meusdados",
-        "!info"
+        "!info",
+        "!changelog"
     ],
     "figurinhas": [
         "!s",
@@ -95,6 +96,10 @@
         "!ppt",
         "!gadometro",
         "!bafometro",
+        "!macacometro",
+        "!pirokometro",
+        "!gato",
+        "!piada",
         "!top5",
         "!par",
         "!malacos",
