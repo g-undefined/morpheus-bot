@@ -127,34 +127,69 @@ module.exports = downloads = async (client, message) => {
                 }
                 break
 
-                case '!img':
-                    if(quotedMsg || type != "chat") return await client.reply(chatId, erroComandoMsg(command) , id)
-                    var usuarioQuantidadeFotos = args[1], qtdFotos = 1, textoPesquisa = ""
-                    if(!isNaN(usuarioQuantidadeFotos)){
-                        if(usuarioQuantidadeFotos > 0 && usuarioQuantidadeFotos <= 5) {
-                            qtdFotos = usuarioQuantidadeFotos
-                            textoPesquisa = args.slice(2).join(" ").trim()
-                        } else {
-                            return await client.reply(chatId, msgs_texto.downloads.img.qtd_imagem , id)
-                        }
+            case '!img':
+                if (quotedMsg || type != "chat") {
+                    return await client.reply(chatId, erroComandoMsg(command), id);
+                }
+
+                const usuarioQuantidadeFotos = args[1];
+                let qtdFotos = 1;
+                let textoPesquisa = "";
+
+                if (!isNaN(usuarioQuantidadeFotos)) {
+                    if (usuarioQuantidadeFotos > 0 && usuarioQuantidadeFotos <= 5) {
+                        qtdFotos = usuarioQuantidadeFotos;
+                        textoPesquisa = args.slice(2).join(" ").trim();
                     } else {
-                        textoPesquisa = body.slice(5).trim()
+                        return await client.reply(chatId, msgs_texto.downloads.img.qtd_imagem, id);
                     }
-                    if (!textoPesquisa) return await client.reply(chatId, erroComandoMsg(command), id)
-                    if (textoPesquisa.length > 120) return await client.reply(chatId, msgs_texto.downloads.img.tema_longo , id)
-                    try{
-                        var resultadosImagens = await api.obterImagens(textoPesquisa, qtdFotos)
-                        for(let imagem of resultadosImagens){
-                            client.sendFileFromUrl(chatId, imagem , "foto.jpg" , "", (qtdFotos == 1) ? id : "").catch(async ()=>{
-                                await client.sendText(chatId, msgs_texto.downloads.img.erro_imagem)
-                            })
+                } else {
+                    textoPesquisa = body.slice(5).trim();
+                }
+
+                if (!textoPesquisa) {
+                    return await client.reply(chatId, erroComandoMsg(command), id);
+                }
+
+                if (textoPesquisa.length > 120) {
+                    return await client.reply(chatId, msgs_texto.downloads.img.tema_longo, id);
+                }
+
+                try {
+                    const resultadosImagens = await api.obterImagens(textoPesquisa, qtdFotos);
+
+                    if (resultadosImagens.length === 0) {
+                        await client.reply(chatId, "Nenhuma imagem encontrada para o tema: " + textoPesquisa, id);
+                    } else {
+                        const imagensAleatorias = shuffleArray(resultadosImagens); // Embaralha as URLs das imagens
+
+                        const imagensSelecionadas = imagensAleatorias.slice(0, qtdFotos); // Seleciona a quantidade desejada
+
+                        for (const imagemUrl of imagensSelecionadas) {
+                            try {
+                                await client.sendFileFromUrl(chatId, imagemUrl, "foto.jpg", "", (qtdFotos == 1) ? id : "");
+                            } catch (sendError) {
+                                await client.sendText(chatId, msgs_texto.downloads.img.erro_imagem);
+                            }
                         }
-                    } catch(err){
-                        await client.reply(chatId, err.message, id)
                     }
-                    break
+                } catch (err) {
+                    await client.reply(chatId, err.message, id);
+                }
+                break;
+
         }
     } catch (err) {
         throw err
     }
+}
+
+// Função para embaralhar um array usando o algoritmo de Fisher-Yates
+function shuffleArray(array) {
+    const shuffledArray = [...array];
+    for (let i = shuffledArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+    }
+    return shuffledArray;
 }
